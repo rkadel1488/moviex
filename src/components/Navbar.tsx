@@ -4,17 +4,17 @@ const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-black text-white border-b border-white/10">
+    <nav className="sticky top-0 z-20 flex items-center justify-between px-6 sm:px-10 py-4 bg-black/80 backdrop-blur-md text-white border-b border-white/10">
       <Link href="/" className="text-xl font-bold tracking-wide">
         MOVIE<span className="text-red-500">X</span>
       </Link>
       <div className="flex items-center gap-6 text-sm font-medium">
-        <Link href="/" className="hover:text-red-400">
+        <Link href="/" className="text-white/80 hover:text-red-400 transition-colors">
           Movies
         </Link>
         <a
           href={ANIMEX_URL}
-          className="hover:text-red-400"
+          className="text-white/80 hover:text-red-400 transition-colors"
           target="_blank"
           rel="noopener noreferrer"
         >
