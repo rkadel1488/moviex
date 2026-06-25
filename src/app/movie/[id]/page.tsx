@@ -35,6 +35,7 @@ export default async function MoviePage({
             src={embedUrl}
             className="w-full h-full"
             allowFullScreen
+            referrerPolicy="no-referrer"
             sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
           />
         </div>
