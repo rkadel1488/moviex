@@ -36,7 +36,7 @@ export default async function MoviePage({
             className="w-full h-full"
             allowFullScreen
             referrerPolicy="no-referrer"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-forms"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           />
         </div>
       </div>
