@@ -67,22 +67,23 @@ export async function getTrendingMovies(page = 1): Promise<TmdbMovie[]> {
   return data.results;
 }
 
-const GENRE_IDS = {
-  action: 28,
-  comedy: 35,
-  horror: 27,
-  scifi: 878,
-  romance: 10749,
-  animation: 16,
+export const GENRES = {
+  action: { id: 28, label: "Action" },
+  comedy: { id: 35, label: "Comedy" },
+  horror: { id: 27, label: "Horror" },
+  scifi: { id: 878, label: "Sci-Fi" },
+  romance: { id: 10749, label: "Romance" },
+  animation: { id: 16, label: "Animation" },
+  drama: { id: 18, label: "Drama" },
+  thriller: { id: 53, label: "Thriller" },
 } as const;
 
-export async function getMoviesByGenre(
-  genre: keyof typeof GENRE_IDS,
-  page = 1
-): Promise<TmdbMovie[]> {
+export type GenreKey = keyof typeof GENRES;
+
+export async function getMoviesByGenre(genre: GenreKey, page = 1): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/discover/movie",
-    `with_genres=${GENRE_IDS[genre]}&page=${page}`
+    `with_genres=${GENRES[genre].id}&page=${page}`
   );
   return data.results;
 }

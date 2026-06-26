@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import BrowseMenu from "@/components/BrowseMenu";
+import SearchBar from "@/components/SearchBar";
 
 const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example.com";
 
@@ -21,13 +23,19 @@ export default function Navbar() {
         scrolled ? "bg-black/60 backdrop-blur-md border-b border-white/10" : "bg-gradient-to-b from-black/70 to-transparent"
       }`}
     >
-      <Link href="/" className="text-xl font-bold tracking-wide">
-        MOVIE<span className="text-red-500">X</span>
-      </Link>
-      <div className="flex items-center gap-6 text-sm font-medium">
-        <Link href="/" className="text-white/80 hover:text-red-400 transition-colors">
-          Movies
+      <div className="flex items-center gap-6">
+        <Link href="/" className="text-xl font-bold tracking-wide">
+          MOVIE<span className="text-red-500">X</span>
         </Link>
+        <div className="hidden sm:flex items-center gap-6 text-sm font-medium">
+          <Link href="/" className="text-white/80 hover:text-red-400 transition-colors">
+            Movies
+          </Link>
+          <BrowseMenu />
+        </div>
+      </div>
+      <div className="flex items-center gap-5 text-sm font-medium">
+        <SearchBar />
         <a
           href={ANIMEX_URL}
           className="text-white/80 hover:text-red-400 transition-colors"
