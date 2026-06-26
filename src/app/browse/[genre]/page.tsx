@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { GENRES, GenreKey, getAllMovies, getMoviesByGenre, tmdbImageUrl } from "@/lib/tmdb";
+import {
+  GENRES,
+  GenreKey,
+  getAllMovies,
+  getMoviesByGenre,
+  getSouthIndianMovies,
+  tmdbImageUrl,
+} from "@/lib/tmdb";
 
 export const dynamic = "force-dynamic";
 
@@ -10,12 +17,17 @@ export default async function BrowsePage({
   params: Promise<{ genre: string }>;
 }) {
   const { genre } = await params;
-  if (genre !== "all" && !(genre in GENRES)) notFound();
+  if (genre !== "all" && genre !== "south-indian" && !(genre in GENRES)) notFound();
 
   const isAll = genre === "all";
+  const isSouthIndian = genre === "south-indian";
   const genreKey = genre as GenreKey;
-  const movies = isAll ? await getAllMovies() : await getMoviesByGenre(genreKey);
-  const heading = isAll ? "All Movies" : GENRES[genreKey].label;
+  const movies = isAll
+    ? await getAllMovies()
+    : isSouthIndian
+      ? await getSouthIndianMovies()
+      : await getMoviesByGenre(genreKey);
+  const heading = isAll ? "All Movies" : isSouthIndian ? "South Indian Cinema" : GENRES[genreKey].label;
 
   return (
     <div className="px-6 sm:px-10 pt-28 pb-16 bg-zinc-950 min-h-full">

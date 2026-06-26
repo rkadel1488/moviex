@@ -96,6 +96,29 @@ export async function getAllMovies(page = 1): Promise<TmdbMovie[]> {
   return data.results;
 }
 
+const SOUTH_INDIAN_LANGUAGES = ["te", "ta", "ml", "kn"] as const;
+
+// TMDB only catalogs each film once under its original language and has no
+// "dubbed" flag, so this surfaces South Indian cinema (Telugu, Tamil,
+// Malayalam, Kannada) in its original language; many of these titles are
+// also available dubbed in Hindi through the embed provider's own audio
+// track selector.
+export async function getSouthIndianMovies(page = 1): Promise<TmdbMovie[]> {
+  const results = await Promise.all(
+    SOUTH_INDIAN_LANGUAGES.map((lang) =>
+      tmdbFetch<TmdbListResponse>(
+        "/discover/movie",
+        `with_original_language=${lang}&region=IN&sort_by=popularity.desc&page=${page}`
+      ).then((data) => data.results)
+    )
+  );
+  const merged = results.flat();
+  const seen = new Set<number>();
+  return merged
+    .filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)))
+    .sort((a, b) => b.vote_average - a.vote_average);
+}
+
 export async function searchMovies(query: string): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/search/movie",

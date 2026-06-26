@@ -2,6 +2,7 @@ import {
   getMoviesByGenre,
   getNowPlayingMovies,
   getPopularMovies,
+  getSouthIndianMovies,
   getTopRatedMovies,
   getTrendingMovies,
   getUpcomingMovies,
@@ -24,6 +25,7 @@ export default async function Home() {
     Awaited<ReturnType<typeof getMoviesByGenre>>,
     Awaited<ReturnType<typeof getMoviesByGenre>>,
     Awaited<ReturnType<typeof getMoviesByGenre>>,
+    Awaited<ReturnType<typeof getSouthIndianMovies>>,
   ] | null = null;
   let error: string | null = null;
 
@@ -39,6 +41,7 @@ export default async function Home() {
       getMoviesByGenre("horror"),
       getMoviesByGenre("scifi"),
       getMoviesByGenre("animation"),
+      getSouthIndianMovies(),
     ]);
   } catch {
     error = "Unable to load movies. Set TMDB_API_KEY or TMDB_API_TOKEN in your environment.";
@@ -63,6 +66,7 @@ export default async function Home() {
     horror,
     scifi,
     animation,
+    southIndian,
   ] = result;
 
   const featuredCandidates = trending.slice(0, 6);
@@ -74,6 +78,7 @@ export default async function Home() {
         <HistoryRows />
         <MovieRow title="Trending Now" movies={trending} />
         <MovieRow title="Popular on MovieX" movies={popular} />
+        <MovieRow title="South Indian Cinema" movies={southIndian} />
         <MovieRow title="Top Rated" movies={topRated} />
         <MovieRow title="Now Playing" movies={nowPlaying} />
         <MovieRow title="Upcoming" movies={upcoming} />

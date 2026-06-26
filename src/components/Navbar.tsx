@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import BrowseMenu from "@/components/BrowseMenu";
 import SearchBar from "@/components/SearchBar";
+import Logo from "@/components/Logo";
 
 const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example.com";
 
@@ -24,8 +25,8 @@ export default function Navbar() {
       }`}
     >
       <div className="flex items-center gap-6">
-        <Link href="/" className="text-xl font-bold tracking-wide">
-          MOVIE<span className="text-red-500">X</span>
+        <Link href="/">
+          <Logo />
         </Link>
         <div className="hidden sm:flex items-center gap-6 text-sm font-medium">
           <Link href="/" className="text-white/80 hover:text-red-400 transition-colors">
