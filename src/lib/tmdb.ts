@@ -47,6 +47,21 @@ export async function getPopularMovies(page = 1): Promise<TmdbMovie[]> {
   return data.results;
 }
 
+export async function getTopRatedMovies(page = 1): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>("/movie/top_rated", `page=${page}`);
+  return data.results;
+}
+
+export async function getNowPlayingMovies(page = 1): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>("/movie/now_playing", `page=${page}`);
+  return data.results;
+}
+
+export async function getUpcomingMovies(page = 1): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>("/movie/upcoming", `page=${page}`);
+  return data.results;
+}
+
 export async function searchMovies(query: string): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/search/movie",

@@ -1,10 +1,26 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example.com";
 
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav className="sticky top-0 z-20 flex items-center justify-between px-6 sm:px-10 py-4 bg-black/80 backdrop-blur-md text-white border-b border-white/10">
+    <nav
+      className={`fixed top-0 inset-x-0 z-30 flex items-center justify-between px-6 sm:px-10 py-4 text-white transition-colors duration-300 ${
+        scrolled ? "bg-black/95 backdrop-blur-md border-b border-white/10" : "bg-gradient-to-b from-black/70 to-transparent"
+      }`}
+    >
       <Link href="/" className="text-xl font-bold tracking-wide">
         MOVIE<span className="text-red-500">X</span>
       </Link>

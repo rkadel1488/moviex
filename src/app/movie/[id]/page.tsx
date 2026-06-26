@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getMovieDetails, tmdbImageUrl } from "@/lib/tmdb";
 import { getMovieEmbedUrl } from "@/lib/embed";
 
@@ -28,12 +27,6 @@ export default async function MoviePage({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/10" />
-        <Link
-          href="/"
-          className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 transition-colors"
-        >
-          ← Back
-        </Link>
       </div>
 
       <div className="px-6 sm:px-10 max-w-5xl mx-auto -mt-24 relative pb-16">
