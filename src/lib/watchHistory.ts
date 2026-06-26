@@ -29,13 +29,6 @@ export function recordVisit(entry: Omit<WatchEntry, "visitedAt">): void {
   );
 }
 
-// We have no access to the embed player's actual playback progress (it's a
-// cross-origin iframe), so "continue watching" is approximated as the most
-// recently visited titles, newest first.
-export function getContinueWatching(limit = 10): WatchEntry[] {
-  return readHistory().slice(0, limit);
-}
-
 export function getRecentlyWatched(limit = 10): WatchEntry[] {
   return readHistory().slice(0, limit);
 }
