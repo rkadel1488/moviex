@@ -1,17 +1,34 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { TmdbMovie, tmdbImageUrl } from "@/lib/tmdb";
 
-export default function Hero({ movie }: { movie: TmdbMovie }) {
+const ROTATE_INTERVAL_MS = 7000;
+
+export default function Hero({ movies }: { movies: TmdbMovie[] }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (movies.length <= 1) return;
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % movies.length);
+    }, ROTATE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [movies.length]);
+
+  const movie = movies[index];
   const backdrop = tmdbImageUrl(movie.backdrop_path, "original");
 
   return (
-    <div className="relative w-full h-[56vw] max-h-[80vh] min-h-[420px]">
+    <div className="relative w-full h-[56vw] max-h-[80vh] min-h-[420px] overflow-hidden">
       {backdrop && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          key={movie.id}
           src={backdrop}
           alt={movie.title}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover animate-[fadeIn_0.8s_ease-in-out]"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
@@ -38,6 +55,21 @@ export default function Hero({ movie }: { movie: TmdbMovie }) {
             ℹ More Info
           </Link>
         </div>
+        {movies.length > 1 && (
+          <div className="flex gap-1.5 mt-6">
+            {movies.map((m, i) => (
+              <button
+                key={m.id}
+                type="button"
+                aria-label={`Show ${m.title}`}
+                onClick={() => setIndex(i)}
+                className={`h-1 rounded-full transition-all ${
+                  i === index ? "w-8 bg-white" : "w-4 bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

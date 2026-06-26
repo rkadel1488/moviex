@@ -1,5 +1,6 @@
 import { getMovieDetails, tmdbImageUrl } from "@/lib/tmdb";
 import { getMovieEmbedUrl } from "@/lib/embed";
+import RecordVisit from "@/components/RecordVisit";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,12 @@ export default async function MoviePage({
 
   return (
     <div className="bg-zinc-950 min-h-full text-white">
+      <RecordVisit
+        id={movie.id}
+        title={movie.title}
+        poster_path={movie.poster_path}
+        vote_average={movie.vote_average}
+      />
       <div className="relative">
         {backdrop && (
           // eslint-disable-next-line @next/next/no-img-element

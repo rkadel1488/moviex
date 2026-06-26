@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-30 flex items-center justify-between px-6 sm:px-10 py-4 text-white transition-colors duration-300 ${
-        scrolled ? "bg-black/95 backdrop-blur-md border-b border-white/10" : "bg-gradient-to-b from-black/70 to-transparent"
+        scrolled ? "bg-black/60 backdrop-blur-md border-b border-white/10" : "bg-gradient-to-b from-black/70 to-transparent"
       }`}
     >
       <Link href="/" className="text-xl font-bold tracking-wide">

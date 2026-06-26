@@ -62,6 +62,31 @@ export async function getUpcomingMovies(page = 1): Promise<TmdbMovie[]> {
   return data.results;
 }
 
+export async function getTrendingMovies(page = 1): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>("/trending/movie/week", `page=${page}`);
+  return data.results;
+}
+
+const GENRE_IDS = {
+  action: 28,
+  comedy: 35,
+  horror: 27,
+  scifi: 878,
+  romance: 10749,
+  animation: 16,
+} as const;
+
+export async function getMoviesByGenre(
+  genre: keyof typeof GENRE_IDS,
+  page = 1
+): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>(
+    "/discover/movie",
+    `with_genres=${GENRE_IDS[genre]}&page=${page}`
+  );
+  return data.results;
+}
+
 export async function searchMovies(query: string): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/search/movie",
