@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { GENRES, GenreKey, getMoviesByGenre, tmdbImageUrl } from "@/lib/tmdb";
+import { GENRES, GenreKey, getAllMovies, getMoviesByGenre, tmdbImageUrl } from "@/lib/tmdb";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +10,16 @@ export default async function BrowsePage({
   params: Promise<{ genre: string }>;
 }) {
   const { genre } = await params;
-  if (!(genre in GENRES)) notFound();
+  if (genre !== "all" && !(genre in GENRES)) notFound();
 
+  const isAll = genre === "all";
   const genreKey = genre as GenreKey;
-  const movies = await getMoviesByGenre(genreKey);
+  const movies = isAll ? await getAllMovies() : await getMoviesByGenre(genreKey);
+  const heading = isAll ? "All Movies" : GENRES[genreKey].label;
 
   return (
     <div className="px-6 sm:px-10 pt-28 pb-16 bg-zinc-950 min-h-full">
-      <h1 className="text-3xl font-bold text-white mb-6">{GENRES[genreKey].label}</h1>
+      <h1 className="text-3xl font-bold text-white mb-6">{heading}</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-8">
         {movies.map((movie) => {
           const poster = tmdbImageUrl(movie.poster_path, "w500");

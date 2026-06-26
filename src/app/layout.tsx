@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
@@ -31,6 +32,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
+        <Script
+          src="https://paviliongiddy.com/22/2c/b8/222cb865afcd9fc7569b63fbe3f451df.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

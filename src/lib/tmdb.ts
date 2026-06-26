@@ -88,6 +88,14 @@ export async function getMoviesByGenre(genre: GenreKey, page = 1): Promise<TmdbM
   return data.results;
 }
 
+export async function getAllMovies(page = 1): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>(
+    "/discover/movie",
+    `sort_by=popularity.desc&page=${page}`
+  );
+  return data.results;
+}
+
 export async function searchMovies(query: string): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/search/movie",

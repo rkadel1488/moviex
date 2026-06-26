@@ -21,6 +21,12 @@ export default function BrowseMenu() {
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-2 w-48 bg-black/95 backdrop-blur-md ring-1 ring-white/10 rounded-md shadow-xl py-2 z-40">
+          <Link
+            href="/browse/all"
+            className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            All
+          </Link>
           {Object.entries(GENRES).map(([key, genre]) => (
             <Link
               key={key}
