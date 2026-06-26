@@ -36,10 +36,15 @@ export default function Navbar() {
         </div>
       </div>
       <div className="flex items-center gap-5 text-sm font-medium">
-        <SearchBar />
+        <div className="hidden sm:block">
+          <SearchBar />
+        </div>
+        <Link href="/search" className="sm:hidden text-white/80 p-1" aria-label="Search">
+          🔍
+        </Link>
         <a
           href={ANIMEX_URL}
-          className="text-white/80 hover:text-red-400 transition-colors"
+          className="hidden sm:inline text-white/80 hover:text-red-400 transition-colors"
           target="_blank"
           rel="noopener noreferrer"
         >

@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <main className="flex-1 pb-14 sm:pb-0">{children}</main>
+        <div className="hidden sm:block">
+          <Footer />
+        </div>
+        <BottomNav />
         <Script
           src="https://paviliongiddy.com/22/2c/b8/222cb865afcd9fc7569b63fbe3f451df.js"
           strategy="afterInteractive"

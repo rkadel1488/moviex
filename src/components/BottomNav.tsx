@@ -1,0 +1,100 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example.com";
+
+function HomeIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill={active ? "#fff" : "none"} stroke="currentColor" strokeWidth="2">
+      <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6h5v6H17.5a1 1 0 0 0 1-1V10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function GridIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M20 20 16 16" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="3" />
+      <path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export default function BottomNav() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const isBrowse = pathname.startsWith("/browse");
+  const isSearch = pathname.startsWith("/search");
+
+  const items = [
+    {
+      href: "/",
+      label: "Home",
+      active: isHome,
+      icon: <HomeIcon active={isHome} />,
+    },
+    {
+      href: "/browse/all",
+      label: "Browse",
+      active: isBrowse,
+      icon: <GridIcon active={isBrowse} />,
+    },
+    {
+      href: "/search",
+      label: "Search",
+      active: isSearch,
+      icon: <SearchIcon />,
+    },
+  ];
+
+  return (
+    <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-black border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-stretch">
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
+              item.active ? "text-white" : "text-white/50"
+            }`}
+          >
+            {item.icon}
+            {item.label}
+          </Link>
+        ))}
+        <a
+          href={ANIMEX_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium text-white/50 transition-colors"
+        >
+          <PlayIcon />
+          ANIMEX
+        </a>
+      </div>
+    </nav>
+  );
+}
