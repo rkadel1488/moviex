@@ -1,6 +1,7 @@
-import { getMovieDetails, tmdbImageUrl } from "@/lib/tmdb";
+import { getMovieDetails, getRecommendedMovies, getSimilarMovies, tmdbImageUrl } from "@/lib/tmdb";
 import { getMovieEmbedUrl } from "@/lib/embed";
 import RecordVisit from "@/components/RecordVisit";
+import MovieRow from "@/components/MovieRow";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,11 @@ export default async function MoviePage({
   const poster = tmdbImageUrl(movie.poster_path, "w500");
   const embedUrl = getMovieEmbedUrl(id);
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
+
+  const [recommended, similar] = await Promise.all([
+    getRecommendedMovies(id).catch(() => []),
+    getSimilarMovies(id).catch(() => []),
+  ]);
 
   return (
     <div className="bg-zinc-950 min-h-full text-white">
@@ -65,9 +71,13 @@ export default async function MoviePage({
             allowFullScreen
             referrerPolicy="no-referrer"
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
           />
         </div>
+      </div>
+
+      <div className="mt-12 pb-16">
+        <MovieRow title="Recommended Movies" movies={recommended} />
+        <MovieRow title="Related Movies" movies={similar} />
       </div>
     </div>
   );

@@ -130,3 +130,13 @@ export async function searchMovies(query: string): Promise<TmdbMovie[]> {
 export async function getMovieDetails(id: string): Promise<TmdbMovie> {
   return tmdbFetch<TmdbMovie>(`/movie/${id}`);
 }
+
+export async function getRecommendedMovies(id: string): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>(`/movie/${id}/recommendations`);
+  return data.results;
+}
+
+export async function getSimilarMovies(id: string): Promise<TmdbMovie[]> {
+  const data = await tmdbFetch<TmdbListResponse>(`/movie/${id}/similar`);
+  return data.results;
+}
