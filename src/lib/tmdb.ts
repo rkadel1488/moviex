@@ -88,6 +88,30 @@ export async function getMoviesByGenre(genre: GenreKey, page = 1): Promise<TmdbM
   return data.results;
 }
 
+export async function getRecentlyAddedMovies(page = 1): Promise<TmdbMovie[]> {
+  const today = new Date().toISOString().slice(0, 10);
+  const data = await tmdbFetch<TmdbListResponse>(
+    "/discover/movie",
+    `sort_by=primary_release_date.desc&primary_release_date.lte=${today}&vote_count.gte=20&page=${page}`
+  );
+  return data.results;
+}
+
+/**
+ * Fetches multiple pages of a list and merges them, giving callers a bigger
+ * pool to dedupe across overlapping homepage rows (TMDB's "popular",
+ * "trending", and genre lists otherwise share most of the same top movies).
+ */
+export async function getMoviesAcrossPages(
+  fetcher: (page: number) => Promise<TmdbMovie[]>,
+  pages = 2
+): Promise<TmdbMovie[]> {
+  const results = await Promise.all(
+    Array.from({ length: pages }, (_, i) => fetcher(i + 1))
+  );
+  return results.flat();
+}
+
 export async function getAllMovies(page = 1): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(
     "/discover/movie",

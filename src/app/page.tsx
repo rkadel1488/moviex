@@ -1,46 +1,62 @@
 import {
+  getMoviesAcrossPages,
   getMoviesByGenre,
   getNowPlayingMovies,
   getPopularMovies,
+  getRecentlyAddedMovies,
   getSouthIndianMovies,
   getTopRatedMovies,
   getTrendingMovies,
   getUpcomingMovies,
+  TmdbMovie,
 } from "@/lib/tmdb";
 import Hero from "@/components/Hero";
 import MovieRow from "@/components/MovieRow";
 import HistoryRows from "@/components/HistoryRows";
 import WatchlistRow from "@/components/WatchlistRow";
 
+function dedupeAgainst(movies: TmdbMovie[], seen: Set<number>, limit = 20): TmdbMovie[] {
+  const result: TmdbMovie[] = [];
+  for (const movie of movies) {
+    if (seen.has(movie.id)) continue;
+    seen.add(movie.id);
+    result.push(movie);
+    if (result.length >= limit) break;
+  }
+  return result;
+}
+
 export default async function Home() {
   let result: [
-    Awaited<ReturnType<typeof getPopularMovies>>,
-    Awaited<ReturnType<typeof getTopRatedMovies>>,
-    Awaited<ReturnType<typeof getNowPlayingMovies>>,
-    Awaited<ReturnType<typeof getUpcomingMovies>>,
-    Awaited<ReturnType<typeof getTrendingMovies>>,
-    Awaited<ReturnType<typeof getMoviesByGenre>>,
-    Awaited<ReturnType<typeof getMoviesByGenre>>,
-    Awaited<ReturnType<typeof getMoviesByGenre>>,
-    Awaited<ReturnType<typeof getMoviesByGenre>>,
-    Awaited<ReturnType<typeof getMoviesByGenre>>,
-    Awaited<ReturnType<typeof getSouthIndianMovies>>,
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
+    TmdbMovie[],
   ] | null = null;
   let error: string | null = null;
 
   try {
     result = await Promise.all([
-      getPopularMovies(),
-      getTopRatedMovies(),
-      getNowPlayingMovies(),
-      getUpcomingMovies(),
-      getTrendingMovies(),
-      getMoviesByGenre("action"),
-      getMoviesByGenre("comedy"),
-      getMoviesByGenre("horror"),
-      getMoviesByGenre("scifi"),
-      getMoviesByGenre("animation"),
+      getMoviesAcrossPages(getTrendingMovies),
+      getMoviesAcrossPages(getPopularMovies),
+      getMoviesAcrossPages(getRecentlyAddedMovies),
       getSouthIndianMovies(),
+      getMoviesAcrossPages(getTopRatedMovies),
+      getMoviesAcrossPages(getNowPlayingMovies),
+      getMoviesAcrossPages(getUpcomingMovies),
+      getMoviesAcrossPages((page) => getMoviesByGenre("action", page)),
+      getMoviesAcrossPages((page) => getMoviesByGenre("comedy", page)),
+      getMoviesAcrossPages((page) => getMoviesByGenre("horror", page)),
+      getMoviesAcrossPages((page) => getMoviesByGenre("scifi", page)),
+      getMoviesAcrossPages((page) => getMoviesByGenre("animation", page)),
     ]);
   } catch {
     error = "Unable to load movies. Set TMDB_API_KEY or TMDB_API_TOKEN in your environment.";
@@ -55,20 +71,36 @@ export default async function Home() {
   }
 
   const [
-    popular,
-    topRated,
-    nowPlaying,
-    upcoming,
-    trending,
-    action,
-    comedy,
-    horror,
-    scifi,
-    animation,
+    trendingPool,
+    popularPool,
+    recentlyAddedPool,
     southIndian,
+    topRatedPool,
+    nowPlayingPool,
+    upcomingPool,
+    actionPool,
+    comedyPool,
+    horrorPool,
+    scifiPool,
+    animationPool,
   ] = result;
 
-  const featuredCandidates = trending.slice(0, 6);
+  const featuredCandidates = trendingPool.slice(0, 6);
+
+  // Each row pulls from the same handful of popular movies, so dedupe
+  // sequentially against everything shown above it to keep rows distinct.
+  const seen = new Set<number>(southIndian.map((m) => m.id));
+  const trending = dedupeAgainst(trendingPool, seen);
+  const popular = dedupeAgainst(popularPool, seen);
+  const recentlyAdded = dedupeAgainst(recentlyAddedPool, seen);
+  const topRated = dedupeAgainst(topRatedPool, seen);
+  const nowPlaying = dedupeAgainst(nowPlayingPool, seen);
+  const upcoming = dedupeAgainst(upcomingPool, seen);
+  const action = dedupeAgainst(actionPool, seen);
+  const comedy = dedupeAgainst(comedyPool, seen);
+  const horror = dedupeAgainst(horrorPool, seen);
+  const scifi = dedupeAgainst(scifiPool, seen);
+  const animation = dedupeAgainst(animationPool, seen);
 
   return (
     <div className="bg-zinc-950 min-h-full">
@@ -77,6 +109,7 @@ export default async function Home() {
         <HistoryRows />
         <WatchlistRow />
         <MovieRow title="Trending Now" movies={trending} />
+        <MovieRow title="Recently Added" movies={recentlyAdded} />
         <MovieRow title="Popular on MovieX" movies={popular} />
         <MovieRow title="South Indian Cinema" movies={southIndian} />
         <MovieRow title="Top Rated" movies={topRated} />
