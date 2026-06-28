@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { TmdbMovie, tmdbImageUrl } from "@/lib/tmdb";
@@ -28,9 +29,11 @@ export default function MovieRow({
 
   return (
     <div className="mb-10">
-      <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 px-6 sm:px-10">
-        {title}
-      </h2>
+      {title && (
+        <h2 className="text-lg sm:text-xl font-semibold text-white mb-3 px-6 sm:px-10">
+          {title}
+        </h2>
+      )}
 
       <div className="group/row relative">
         <button
@@ -55,11 +58,12 @@ export default function MovieRow({
                 className="group relative shrink-0 w-[140px] sm:w-[180px] aspect-[2/3] rounded-md overflow-hidden bg-zinc-800 ring-1 ring-white/5 transition-transform duration-200 sm:hover:scale-105 sm:hover:ring-red-500/60 sm:hover:z-10"
               >
                 {poster ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={poster}
                     alt={movie.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(min-width: 640px) 180px, 140px"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/30 text-xs text-center px-2">

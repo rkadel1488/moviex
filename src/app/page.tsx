@@ -10,8 +10,7 @@ import {
 import Hero from "@/components/Hero";
 import MovieRow from "@/components/MovieRow";
 import HistoryRows from "@/components/HistoryRows";
-
-export const dynamic = "force-dynamic";
+import WatchlistRow from "@/components/WatchlistRow";
 
 export default async function Home() {
   let result: [
@@ -76,6 +75,7 @@ export default async function Home() {
       <Hero movies={featuredCandidates} />
       <div className="relative -mt-16 z-10 pt-4">
         <HistoryRows />
+        <WatchlistRow />
         <MovieRow title="Trending Now" movies={trending} />
         <MovieRow title="Popular on MovieX" movies={popular} />
         <MovieRow title="South Indian Cinema" movies={southIndian} />

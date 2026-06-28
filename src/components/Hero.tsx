@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TmdbMovie, tmdbImageUrl } from "@/lib/tmdb";
@@ -23,12 +24,14 @@ export default function Hero({ movies }: { movies: TmdbMovie[] }) {
   return (
     <div className="relative w-full h-[56vw] max-h-[60vh] sm:max-h-[80vh] min-h-[340px] sm:min-h-[420px] overflow-hidden">
       {backdrop && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           key={movie.id}
           src={backdrop}
           alt={movie.title}
-          className="absolute inset-0 w-full h-full object-cover animate-[fadeIn_0.8s_ease-in-out]"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover animate-[fadeIn_0.8s_ease-in-out]"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />

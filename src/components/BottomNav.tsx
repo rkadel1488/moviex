@@ -7,7 +7,7 @@ const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example
 
 function HomeIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill={active ? "#fff" : "none"} stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill={active ? "#fff" : "none"} stroke="currentColor" strokeWidth="2">
       <path d="M3 11.5 12 4l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6h5v6H17.5a1 1 0 0 0 1-1V10" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -16,7 +16,7 @@ function HomeIcon({ active }: { active: boolean }) {
 
 function GridIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="3.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
       <rect x="13.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
       <rect x="3.5" y="13.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
@@ -27,7 +27,7 @@ function GridIcon({ active }: { active: boolean }) {
 
 function TagIcon({ active }: { active: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
       <path
         d="M11.5 4.5h6a2 2 0 0 1 2 2v6l-9.3 9.3a2 2 0 0 1-2.83 0l-5.17-5.17a2 2 0 0 1 0-2.83L11.5 4.5z"
         strokeLinecap="round"
@@ -42,16 +42,30 @@ function TagIcon({ active }: { active: boolean }) {
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="11" cy="11" r="6.5" />
       <path d="M20 20 16 16" strokeLinecap="round" />
     </svg>
   );
 }
 
+function BookmarkIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill={active ? "currentColor" : "none"}
+        fillOpacity={active ? 0.15 : 0}
+      />
+    </svg>
+  );
+}
+
 function PlayIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="3.5" y="3.5" width="17" height="17" rx="3" />
       <path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none" />
     </svg>
@@ -64,6 +78,7 @@ export default function BottomNav() {
   const isBrowse = pathname.startsWith("/browse");
   const isGenres = pathname.startsWith("/genres");
   const isSearch = pathname.startsWith("/search");
+  const isWatchlist = pathname.startsWith("/watchlist");
 
   const items = [
     {
@@ -90,6 +105,12 @@ export default function BottomNav() {
       active: isSearch,
       icon: <SearchIcon />,
     },
+    {
+      href: "/watchlist",
+      label: "My List",
+      active: isWatchlist,
+      icon: <BookmarkIcon active={isWatchlist} />,
+    },
   ];
 
   return (
@@ -99,7 +120,7 @@ export default function BottomNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium transition-colors ${
               item.active ? "text-white" : "text-white/50"
             }`}
           >
@@ -111,7 +132,7 @@ export default function BottomNav() {
           href={ANIMEX_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium text-white/50 transition-colors"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium text-white/50 transition-colors"
         >
           <PlayIcon />
           ANIMEX

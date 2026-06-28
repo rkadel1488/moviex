@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import {
   GENRES,
@@ -10,8 +11,6 @@ import {
   tmdbImageUrl,
 } from "@/lib/tmdb";
 import { SITE_URL } from "@/lib/site";
-
-export const dynamic = "force-dynamic";
 
 function genreHeading(genre: string): string {
   if (genre === "all") return "All Movies";
@@ -55,8 +54,21 @@ export default async function BrowsePage({
       : await getMoviesByGenre(genreKey);
   const heading = genreHeading(genre);
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: heading, item: `${SITE_URL}/browse/${genre}` },
+    ],
+  };
+
   return (
     <div className="px-6 sm:px-10 pt-28 pb-16 bg-zinc-950 min-h-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <h1 className="text-3xl font-bold text-white mb-6">{heading}</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-8">
         {movies.map((movie) => {
@@ -69,8 +81,13 @@ export default async function BrowsePage({
             >
               <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-800 ring-1 ring-white/5 shadow-lg shadow-black/40 transition-transform duration-200 group-hover:-translate-y-1 group-hover:ring-red-500/50">
                 {poster ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                  <Image
+                    src={poster}
+                    alt={movie.title}
+                    fill
+                    sizes="(min-width: 1024px) 16vw, (min-width: 640px) 25vw, 50vw"
+                    className="object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/30 text-xs text-center px-2">
                     No image

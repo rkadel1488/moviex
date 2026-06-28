@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -79,10 +80,9 @@ export default function SearchPageInput({ initialQuery }: { initialQuery: string
                 onClick={() => setSuggestions([])}
                 className="flex items-center gap-3 px-3 py-2 border-b border-black/5 last:border-b-0 hover:bg-black/5 transition-colors"
               >
-                <div className="w-8 h-11 shrink-0 rounded overflow-hidden bg-zinc-200 flex items-center justify-center">
+                <div className="relative w-8 h-11 shrink-0 rounded overflow-hidden bg-zinc-200 flex items-center justify-center">
                   {poster ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                    <Image src={poster} alt={movie.title} fill sizes="32px" className="object-cover" />
                   ) : (
                     <span className="text-[8px] text-zinc-400">N/A</span>
                   )}

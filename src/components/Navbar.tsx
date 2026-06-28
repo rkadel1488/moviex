@@ -36,6 +36,12 @@ export default function Navbar() {
         </div>
       </div>
       <div className="flex items-center gap-5 text-sm font-medium">
+        <Link
+          href="/watchlist"
+          className="hidden sm:inline text-white/80 hover:text-red-400 transition-colors"
+        >
+          My List
+        </Link>
         <div className="hidden sm:block">
           <SearchBar />
         </div>

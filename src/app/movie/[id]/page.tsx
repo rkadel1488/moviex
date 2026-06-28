@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { getMovieDetails, getRecommendedMovies, getSimilarMovies, tmdbImageUrl } from "@/lib/tmdb";
 import { getMovieEmbedUrl } from "@/lib/embed";
 import { SITE_URL } from "@/lib/site";
 import RecordVisit from "@/components/RecordVisit";
 import MovieRow from "@/components/MovieRow";
-
-export const dynamic = "force-dynamic";
+import WatchlistButton from "@/components/WatchlistButton";
 
 export async function generateMetadata({
   params,
@@ -74,11 +75,24 @@ export default async function MoviePage({
     url: `${SITE_URL}/movie/${id}`,
   };
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: movie.title, item: `${SITE_URL}/movie/${id}` },
+    ],
+  };
+
   return (
     <div className="bg-zinc-950 min-h-full text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <RecordVisit
         id={movie.id}
@@ -86,26 +100,34 @@ export default async function MoviePage({
         poster_path={movie.poster_path}
         vote_average={movie.vote_average}
       />
-      <div className="relative">
+      <div className="relative h-[40vh] sm:h-[50vh]">
         {backdrop && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={backdrop}
             alt={movie.title}
-            className="w-full h-[40vh] sm:h-[50vh] object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/10" />
       </div>
 
       <div className="px-6 sm:px-10 max-w-5xl mx-auto -mt-24 relative pb-16">
+        <nav aria-label="Breadcrumb" className="text-xs text-white/50 mb-4">
+          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <span className="mx-1.5">/</span>
+          <span className="text-white/80">{movie.title}</span>
+        </nav>
         <div className="flex flex-col sm:flex-row gap-6 mb-8">
           {poster && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={poster}
               alt={movie.title}
-              className="w-32 sm:w-44 rounded-xl shadow-2xl shadow-black/60 ring-1 ring-white/10 shrink-0"
+              width={176}
+              height={264}
+              className="w-32 sm:w-44 h-auto rounded-xl shadow-2xl shadow-black/60 ring-1 ring-white/10 shrink-0"
             />
           )}
           <div className="flex flex-col justify-end">
@@ -117,6 +139,14 @@ export default async function MoviePage({
               </span>
             </div>
             <p className="text-white/80 mt-4 max-w-2xl leading-relaxed">{movie.overview}</p>
+            <div className="mt-4">
+              <WatchlistButton
+                id={movie.id}
+                title={movie.title}
+                poster_path={movie.poster_path}
+                vote_average={movie.vote_average}
+              />
+            </div>
           </div>
         </div>
 
