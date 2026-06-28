@@ -44,7 +44,7 @@ export default function MovieRow({
 
         <div
           ref={scrollerRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth px-6 sm:px-10 pb-2 [&::-webkit-scrollbar]:hidden"
+          className="flex gap-3 overflow-x-auto scroll-smooth px-6 sm:px-10 pb-2 [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch] [touch-action:pan-x] [overscroll-behavior-x:contain]"
         >
           {movies.map((movie) => {
             const poster = tmdbImageUrl(movie.poster_path, "w500");
@@ -52,7 +52,7 @@ export default function MovieRow({
               <Link
                 key={movie.id}
                 href={`/movie/${movie.id}`}
-                className="group relative shrink-0 w-[140px] sm:w-[180px] aspect-[2/3] rounded-md overflow-hidden bg-zinc-800 ring-1 ring-white/5 transition-transform duration-200 hover:scale-105 hover:ring-red-500/60 hover:z-10"
+                className="group relative shrink-0 w-[140px] sm:w-[180px] aspect-[2/3] rounded-md overflow-hidden bg-zinc-800 ring-1 ring-white/5 transition-transform duration-200 sm:hover:scale-105 sm:hover:ring-red-500/60 sm:hover:z-10"
               >
                 {poster ? (
                   // eslint-disable-next-line @next/next/no-img-element
