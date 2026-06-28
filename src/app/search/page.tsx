@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { searchMovies, tmdbImageUrl } from "@/lib/tmdb";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Search",
+  description: "Search for movies by title on MovieX.",
+  robots: { index: false, follow: true },
+};
 
 export default async function SearchPage({
   searchParams,

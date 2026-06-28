@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -8,8 +9,33 @@ import {
   getSouthIndianMovies,
   tmdbImageUrl,
 } from "@/lib/tmdb";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
+
+function genreHeading(genre: string): string {
+  if (genre === "all") return "All Movies";
+  if (genre === "south-indian") return "South Indian Cinema";
+  return GENRES[genre as GenreKey]?.label ?? genre;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ genre: string }>;
+}): Promise<Metadata> {
+  const { genre } = await params;
+  const heading = genreHeading(genre);
+  const title = `${heading} Movies`;
+  const description = `Browse and stream ${heading.toLowerCase()} movies online for free on MovieX.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/browse/${genre}` },
+    openGraph: { title, description, url: `${SITE_URL}/browse/${genre}` },
+  };
+}
 
 export default async function BrowsePage({
   params,
@@ -27,7 +53,7 @@ export default async function BrowsePage({
     : isSouthIndian
       ? await getSouthIndianMovies()
       : await getMoviesByGenre(genreKey);
-  const heading = isAll ? "All Movies" : isSouthIndian ? "South Indian Cinema" : GENRES[genreKey].label;
+  const heading = genreHeading(genre);
 
   return (
     <div className="px-6 sm:px-10 pt-28 pb-16 bg-zinc-950 min-h-full">

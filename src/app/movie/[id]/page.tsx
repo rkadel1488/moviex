@@ -1,9 +1,43 @@
+import type { Metadata } from "next";
 import { getMovieDetails, getRecommendedMovies, getSimilarMovies, tmdbImageUrl } from "@/lib/tmdb";
 import { getMovieEmbedUrl } from "@/lib/embed";
+import { SITE_URL } from "@/lib/site";
 import RecordVisit from "@/components/RecordVisit";
 import MovieRow from "@/components/MovieRow";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const movie = await getMovieDetails(id);
+  const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
+  const title = year ? `Watch ${movie.title} (${year})` : `Watch ${movie.title}`;
+  const description = movie.overview || `Watch ${movie.title} online on MovieX.`;
+  const poster = tmdbImageUrl(movie.poster_path, "w500");
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/movie/${id}` },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/movie/${id}`,
+      type: "video.movie",
+      images: poster ? [{ url: poster }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: poster ? [poster] : undefined,
+    },
+  };
+}
 
 export default async function MoviePage({
   params,
@@ -22,8 +56,30 @@ export default async function MoviePage({
     getSimilarMovies(id).catch(() => []),
   ]);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: movie.title,
+    description: movie.overview,
+    image: poster ?? undefined,
+    datePublished: movie.release_date || undefined,
+    aggregateRating: movie.vote_average
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: movie.vote_average,
+          bestRating: 10,
+          worstRating: 0,
+        }
+      : undefined,
+    url: `${SITE_URL}/movie/${id}`,
+  };
+
   return (
     <div className="bg-zinc-950 min-h-full text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <RecordVisit
         id={movie.id}
         title={movie.title}
