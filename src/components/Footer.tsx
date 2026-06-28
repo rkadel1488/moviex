@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const ANIMEX_URL = process.env.NEXT_PUBLIC_ANIMEX_URL ?? "https://animex.example.com";
+
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-white/10 text-white/50 text-sm px-6 sm:px-10 py-8 mt-auto">
@@ -15,6 +17,14 @@ export default function Footer() {
           <Link href="/terms" className="hover:text-white transition-colors">
             Terms &amp; Conditions
           </Link>
+          <a
+            href={ANIMEX_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors"
+          >
+            ANIMEX
+          </a>
         </div>
       </div>
     </footer>
