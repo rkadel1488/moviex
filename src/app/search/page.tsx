@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { searchMovies, tmdbImageUrl } from "@/lib/tmdb";
+import SearchPageInput from "@/components/SearchPageInput";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function SearchPage({
       <h1 className="text-2xl font-bold text-white mb-6">
         {query ? `Results for "${query}"` : "Search"}
       </h1>
+      <SearchPageInput initialQuery={query} />
       {query && movies.length === 0 && (
         <p className="text-white/50">No movies found.</p>
       )}

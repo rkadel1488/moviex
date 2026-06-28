@@ -25,6 +25,21 @@ function GridIcon({ active }: { active: boolean }) {
   );
 }
 
+function TagIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+      <path
+        d="M11.5 4.5h6a2 2 0 0 1 2 2v6l-9.3 9.3a2 2 0 0 1-2.83 0l-5.17-5.17a2 2 0 0 1 0-2.83L11.5 4.5z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill={active ? "currentColor" : "none"}
+        fillOpacity={active ? 0.15 : 0}
+      />
+      <circle cx="15.5" cy="8.5" r="1.4" fill={active ? "#fff" : "none"} />
+    </svg>
+  );
+}
+
 function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
@@ -47,6 +62,7 @@ export default function BottomNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isBrowse = pathname.startsWith("/browse");
+  const isGenres = pathname.startsWith("/genres");
   const isSearch = pathname.startsWith("/search");
 
   const items = [
@@ -61,6 +77,12 @@ export default function BottomNav() {
       label: "Browse",
       active: isBrowse,
       icon: <GridIcon active={isBrowse} />,
+    },
+    {
+      href: "/genres",
+      label: "Genres",
+      active: isGenres,
+      icon: <TagIcon active={isGenres} />,
     },
     {
       href: "/search",

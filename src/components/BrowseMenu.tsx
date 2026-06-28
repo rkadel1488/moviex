@@ -42,6 +42,13 @@ export default function BrowseMenu() {
           >
             South Indian Cinema
           </Link>
+          <div className="my-1 border-t border-white/10" />
+          <Link
+            href="/genres"
+            className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            All Genres
+          </Link>
         </div>
       )}
     </div>
