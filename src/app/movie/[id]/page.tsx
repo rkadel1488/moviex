@@ -7,6 +7,7 @@ import { SITE_URL } from "@/lib/site";
 import RecordVisit from "@/components/RecordVisit";
 import MovieRow from "@/components/MovieRow";
 import WatchlistButton from "@/components/WatchlistButton";
+import ShareButton from "@/components/ShareButton";
 
 export async function generateMetadata({
   params,
@@ -139,13 +140,14 @@ export default async function MoviePage({
               </span>
             </div>
             <p className="text-white/80 mt-4 max-w-2xl leading-relaxed">{movie.overview}</p>
-            <div className="mt-4">
+            <div className="mt-4 flex flex-wrap gap-3">
               <WatchlistButton
                 id={movie.id}
                 title={movie.title}
                 poster_path={movie.poster_path}
                 vote_average={movie.vote_average}
               />
+              <ShareButton title={movie.title} url={`${SITE_URL}/movie/${id}`} />
             </div>
           </div>
         </div>
