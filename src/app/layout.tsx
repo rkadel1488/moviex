@@ -61,6 +61,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script src="https://paviliongiddy.com/55/04/5b/55045bd6838e356218f6ad07be747006.js" async />
         <Navbar />
         <main className="flex-1 pb-14 sm:pb-0">{children}</main>
         <div className="hidden sm:block">
