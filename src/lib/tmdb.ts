@@ -265,6 +265,14 @@ export async function getSimilarSeries(id: string): Promise<TmdbSeries[]> {
   return data.results;
 }
 
+export async function getHindiSeries(page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>(
+    "/discover/tv",
+    `with_original_language=hi&sort_by=popularity.desc&page=${page}`
+  );
+  return data.results;
+}
+
 export async function searchSeries(query: string): Promise<TmdbSeries[]> {
   const data = await tmdbFetch<TmdbSeriesListResponse>(
     "/search/tv",

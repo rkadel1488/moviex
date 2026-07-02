@@ -12,6 +12,7 @@ import {
   getTrendingSeries,
   getPopularSeries,
   getTopRatedSeries,
+  getHindiSeries,
   TmdbMovie,
   TmdbSeries,
 } from "@/lib/tmdb";
@@ -35,7 +36,7 @@ function dedupeAgainst<T extends { id: number }>(items: T[], seen: Set<number>, 
 
 export default async function Home() {
   let movies: [TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[]] | null = null;
-  let seriesData: [TmdbSeries[], TmdbSeries[], TmdbSeries[]] | null = null;
+  let seriesData: [TmdbSeries[], TmdbSeries[], TmdbSeries[], TmdbSeries[]] | null = null;
   let error: string | null = null;
 
   try {
@@ -58,6 +59,7 @@ export default async function Home() {
         getSeriesAcrossPages(getTrendingSeries),
         getSeriesAcrossPages(getPopularSeries),
         getSeriesAcrossPages(getTopRatedSeries),
+        getSeriesAcrossPages(getHindiSeries),
       ]),
     ]);
   } catch {
@@ -87,7 +89,7 @@ export default async function Home() {
     animationPool,
   ] = movies;
 
-  const [trendingSeriesPool, popularSeriesPool, topRatedSeriesPool] = seriesData;
+  const [trendingSeriesPool, popularSeriesPool, topRatedSeriesPool, hindiSeriesPool] = seriesData;
 
   const featuredCandidates = trendingPool.slice(0, 6);
 
@@ -110,6 +112,9 @@ export default async function Home() {
   const trendingSeries = dedupeAgainst(trendingSeriesPool, seriesSeen);
   const popularSeries = dedupeAgainst(popularSeriesPool, seriesSeen);
   const topRatedSeries = dedupeAgainst(topRatedSeriesPool, seriesSeen);
+  // Hindi series get their own seen set so popular overlap doesn't wipe the row
+  const hindiSeriesSeen = new Set<number>();
+  const hindiSeries = dedupeAgainst(hindiSeriesPool, hindiSeriesSeen);
 
   return (
     <div className="bg-zinc-950 min-h-full">
@@ -136,6 +141,7 @@ export default async function Home() {
           </div>
         </div>
         <SeriesRow title="Trending Series" series={trendingSeries} />
+        <SeriesRow title="Hindi Web Series" series={hindiSeries} />
         <SeriesRow title="Popular Series" series={popularSeries} />
         <SeriesRow title="Top Rated Series" series={topRatedSeries} />
       </div>

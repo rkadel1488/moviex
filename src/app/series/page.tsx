@@ -5,6 +5,7 @@ import {
   getTopRatedSeries,
   getOnTheAirSeries,
   getSeriesByGenre,
+  getHindiSeries,
 } from "@/lib/tmdb";
 import SeriesRow from "@/components/SeriesRow";
 import type { Metadata } from "next";
@@ -28,12 +29,13 @@ function dedupeAgainst<T extends { id: number }>(items: T[], seen: Set<number>, 
 }
 
 export default async function SeriesPage() {
-  const [trendingPool, popularPool, topRatedPool, onAirPool, dramaPool, crimePool, scifiPool, animationPool] =
+  const [trendingPool, popularPool, topRatedPool, onAirPool, hindiPool, dramaPool, crimePool, scifiPool, animationPool] =
     await Promise.all([
       getSeriesAcrossPages(getTrendingSeries),
       getSeriesAcrossPages(getPopularSeries),
       getSeriesAcrossPages(getTopRatedSeries),
       getSeriesAcrossPages(getOnTheAirSeries).catch(() => [] as Awaited<ReturnType<typeof getOnTheAirSeries>>),
+      getSeriesAcrossPages(getHindiSeries),
       getSeriesAcrossPages((page) => getSeriesByGenre(18, page)),  // Drama
       getSeriesAcrossPages((page) => getSeriesByGenre(80, page)),  // Crime
       getSeriesAcrossPages((page) => getSeriesByGenre(10765, page)), // Sci-Fi & Fantasy
@@ -45,6 +47,9 @@ export default async function SeriesPage() {
   const popular = dedupeAgainst(popularPool, seen);
   const topRated = dedupeAgainst(topRatedPool, seen);
   const onAir = dedupeAgainst(onAirPool, seen);
+  // Hindi rows get their own seen set so they aren't wiped out by global deduplication
+  const hindiSeen = new Set<number>();
+  const hindi = dedupeAgainst(hindiPool, hindiSeen);
   const drama = dedupeAgainst(dramaPool, seen);
   const crime = dedupeAgainst(crimePool, seen);
   const scifi = dedupeAgainst(scifiPool, seen);
@@ -57,6 +62,7 @@ export default async function SeriesPage() {
         <p className="text-white/50 mt-2 text-sm">Stream full seasons online — select any episode to watch</p>
       </div>
       <SeriesRow title="Trending This Week" series={trending} />
+      <SeriesRow title="Hindi Web Series" series={hindi} />
       <SeriesRow title="Currently Airing" series={onAir} />
       <SeriesRow title="Popular Series" series={popular} />
       <SeriesRow title="Top Rated" series={topRated} />
