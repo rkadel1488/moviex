@@ -11,6 +11,7 @@ interface Suggestion {
   title: string;
   poster_path: string | null;
   year: string | null;
+  type: "movie" | "series";
 }
 
 export default function SearchBar() {
@@ -89,26 +90,32 @@ export default function SearchBar() {
       </form>
       {open && suggestions.length > 0 && (
         <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white text-black rounded-md shadow-2xl ring-1 ring-black/10 z-50">
-          {suggestions.map((movie) => {
-            const poster = tmdbImageUrl(movie.poster_path, "w200");
+          {suggestions.map((item) => {
+            const poster = tmdbImageUrl(item.poster_path, "w200");
+            const href = item.type === "series" ? `/series/${item.id}` : `/movie/${item.id}`;
             return (
               <Link
-                key={movie.id}
-                href={`/movie/${movie.id}`}
+                key={`${item.type}-${item.id}`}
+                href={href}
                 onClick={() => setSuggestions([])}
                 className="flex items-center gap-3 px-3 py-2 border-b border-black/5 last:border-b-0 hover:bg-black/5 transition-colors"
               >
                 <div className="relative w-8 h-11 shrink-0 rounded overflow-hidden bg-zinc-200 flex items-center justify-center">
                   {poster ? (
-                    <Image src={poster} alt={movie.title} fill sizes="32px" className="object-cover" />
+                    <Image src={poster} alt={item.title} fill sizes="32px" className="object-cover" />
                   ) : (
                     <span className="text-[8px] text-zinc-400">N/A</span>
                   )}
                 </div>
-                <p className="text-sm font-medium leading-snug">
-                  {movie.title}
-                  {movie.year && ` (${movie.year})`}
-                </p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium leading-snug truncate">
+                    {item.title}
+                    {item.year && ` (${item.year})`}
+                  </p>
+                  {item.type === "series" && (
+                    <span className="text-[10px] font-semibold text-red-500 uppercase tracking-wide">Series</span>
+                  )}
+                </div>
               </Link>
             );
           })}
