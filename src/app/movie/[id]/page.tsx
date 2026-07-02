@@ -19,7 +19,6 @@ export async function generateMetadata({
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const title = year ? `Watch ${movie.title} (${year})` : `Watch ${movie.title}`;
   const description = movie.overview || `Watch ${movie.title} online on MovieX.`;
-  const poster = tmdbImageUrl(movie.poster_path, "w500");
 
   return {
     title,
@@ -30,13 +29,11 @@ export async function generateMetadata({
       description,
       url: `${SITE_URL}/movie/${id}`,
       type: "video.movie",
-      images: poster ? [{ url: poster }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: poster ? [poster] : undefined,
     },
   };
 }

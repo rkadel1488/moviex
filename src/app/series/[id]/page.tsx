@@ -22,7 +22,6 @@ export async function generateMetadata({
   const year = series.first_air_date ? series.first_air_date.slice(0, 4) : null;
   const title = year ? `Watch ${series.name} (${year})` : `Watch ${series.name}`;
   const description = series.overview || `Watch ${series.name} online on MovieX.`;
-  const poster = tmdbImageUrl(series.poster_path, "w500");
 
   return {
     title,
@@ -33,13 +32,11 @@ export async function generateMetadata({
       description,
       url: `${SITE_URL}/series/${id}`,
       type: "video.tv_show",
-      images: poster ? [{ url: poster }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: poster ? [poster] : undefined,
     },
   };
 }
