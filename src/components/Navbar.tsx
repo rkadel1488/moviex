@@ -32,6 +32,9 @@ export default function Navbar() {
           <Link href="/" className="text-white/80 hover:text-red-400 transition-colors">
             Movies
           </Link>
+          <Link href="/series" className="text-white/80 hover:text-red-400 transition-colors">
+            Series
+          </Link>
           <BrowseMenu />
         </div>
       </div>

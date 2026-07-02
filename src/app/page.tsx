@@ -8,61 +8,63 @@ import {
   getTopRatedMovies,
   getTrendingMovies,
   getUpcomingMovies,
+  getSeriesAcrossPages,
+  getTrendingSeries,
+  getPopularSeries,
+  getTopRatedSeries,
   TmdbMovie,
+  TmdbSeries,
 } from "@/lib/tmdb";
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import MovieRow from "@/components/MovieRow";
+import SeriesRow from "@/components/SeriesRow";
 import HistoryRows from "@/components/HistoryRows";
 import WatchlistRow from "@/components/WatchlistRow";
 
-function dedupeAgainst(movies: TmdbMovie[], seen: Set<number>, limit = 20): TmdbMovie[] {
-  const result: TmdbMovie[] = [];
-  for (const movie of movies) {
-    if (seen.has(movie.id)) continue;
-    seen.add(movie.id);
-    result.push(movie);
+function dedupeAgainst<T extends { id: number }>(items: T[], seen: Set<number>, limit = 20): T[] {
+  const result: T[] = [];
+  for (const item of items) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    result.push(item);
     if (result.length >= limit) break;
   }
   return result;
 }
 
 export default async function Home() {
-  let result: [
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-    TmdbMovie[],
-  ] | null = null;
+  let movies: [TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[], TmdbMovie[]] | null = null;
+  let seriesData: [TmdbSeries[], TmdbSeries[], TmdbSeries[]] | null = null;
   let error: string | null = null;
 
   try {
-    result = await Promise.all([
-      getMoviesAcrossPages(getTrendingMovies),
-      getMoviesAcrossPages(getPopularMovies),
-      getMoviesAcrossPages(getRecentlyAddedMovies),
-      getSouthIndianMovies(),
-      getMoviesAcrossPages(getTopRatedMovies),
-      getMoviesAcrossPages(getNowPlayingMovies),
-      getMoviesAcrossPages(getUpcomingMovies),
-      getMoviesAcrossPages((page) => getMoviesByGenre("action", page)),
-      getMoviesAcrossPages((page) => getMoviesByGenre("comedy", page)),
-      getMoviesAcrossPages((page) => getMoviesByGenre("horror", page)),
-      getMoviesAcrossPages((page) => getMoviesByGenre("scifi", page)),
-      getMoviesAcrossPages((page) => getMoviesByGenre("animation", page)),
+    [movies, seriesData] = await Promise.all([
+      Promise.all([
+        getMoviesAcrossPages(getTrendingMovies),
+        getMoviesAcrossPages(getPopularMovies),
+        getMoviesAcrossPages(getRecentlyAddedMovies),
+        getSouthIndianMovies(),
+        getMoviesAcrossPages(getTopRatedMovies),
+        getMoviesAcrossPages(getNowPlayingMovies),
+        getMoviesAcrossPages(getUpcomingMovies),
+        getMoviesAcrossPages((page) => getMoviesByGenre("action", page)),
+        getMoviesAcrossPages((page) => getMoviesByGenre("comedy", page)),
+        getMoviesAcrossPages((page) => getMoviesByGenre("horror", page)),
+        getMoviesAcrossPages((page) => getMoviesByGenre("scifi", page)),
+        getMoviesAcrossPages((page) => getMoviesByGenre("animation", page)),
+      ]),
+      Promise.all([
+        getSeriesAcrossPages(getTrendingSeries),
+        getSeriesAcrossPages(getPopularSeries),
+        getSeriesAcrossPages(getTopRatedSeries),
+      ]),
     ]);
   } catch {
     error = "Unable to load movies. Set TMDB_API_KEY or TMDB_API_TOKEN in your environment.";
   }
 
-  if (error || !result) {
+  if (error || !movies || !seriesData) {
     return (
       <div className="px-6 py-8 bg-zinc-950 min-h-full text-white/70">
         <p>{error}</p>
@@ -83,7 +85,9 @@ export default async function Home() {
     horrorPool,
     scifiPool,
     animationPool,
-  ] = result;
+  ] = movies;
+
+  const [trendingSeriesPool, popularSeriesPool, topRatedSeriesPool] = seriesData;
 
   const featuredCandidates = trendingPool.slice(0, 6);
 
@@ -101,6 +105,11 @@ export default async function Home() {
   const horror = dedupeAgainst(horrorPool, seen);
   const scifi = dedupeAgainst(scifiPool, seen);
   const animation = dedupeAgainst(animationPool, seen);
+
+  const seriesSeen = new Set<number>();
+  const trendingSeries = dedupeAgainst(trendingSeriesPool, seriesSeen);
+  const popularSeries = dedupeAgainst(popularSeriesPool, seriesSeen);
+  const topRatedSeries = dedupeAgainst(topRatedSeriesPool, seriesSeen);
 
   return (
     <div className="bg-zinc-950 min-h-full">
@@ -120,6 +129,15 @@ export default async function Home() {
         <MovieRow title="Horror" movies={horror} />
         <MovieRow title="Sci-Fi" movies={scifi} />
         <MovieRow title="Animation" movies={animation} />
+        <div className="mt-4 mb-2 px-6 sm:px-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Web Series</h2>
+            <Link href="/series" className="text-sm text-red-400 hover:text-red-300 transition-colors">See all →</Link>
+          </div>
+        </div>
+        <SeriesRow title="Trending Series" series={trendingSeries} />
+        <SeriesRow title="Popular Series" series={popularSeries} />
+        <SeriesRow title="Top Rated Series" series={topRatedSeries} />
       </div>
     </div>
   );

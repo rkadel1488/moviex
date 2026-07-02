@@ -1,6 +1,44 @@
 const TMDB_API_BASE = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
+export interface TmdbSeries {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date: string;
+  vote_average: number;
+  number_of_seasons?: number;
+  number_of_episodes?: number;
+  seasons?: TmdbSeasonSummary[];
+}
+
+export interface TmdbSeasonSummary {
+  id: number;
+  name: string;
+  season_number: number;
+  episode_count: number;
+  poster_path: string | null;
+}
+
+export interface TmdbEpisode {
+  id: number;
+  name: string;
+  episode_number: number;
+  season_number: number;
+  overview: string;
+  still_path: string | null;
+  air_date: string;
+  runtime: number | null;
+}
+
+export interface TmdbSeasonDetails {
+  season_number: number;
+  name: string;
+  episodes: TmdbEpisode[];
+}
+
 export interface TmdbMovie {
   id: number;
   title: string;
@@ -13,6 +51,10 @@ export interface TmdbMovie {
 
 interface TmdbListResponse {
   results: TmdbMovie[];
+}
+
+interface TmdbSeriesListResponse {
+  results: TmdbSeries[];
 }
 
 function tmdbHeaders(): HeadersInit {
@@ -162,5 +204,71 @@ export async function getRecommendedMovies(id: string): Promise<TmdbMovie[]> {
 
 export async function getSimilarMovies(id: string): Promise<TmdbMovie[]> {
   const data = await tmdbFetch<TmdbListResponse>(`/movie/${id}/similar`);
+  return data.results;
+}
+
+// ── TV Series ────────────────────────────────────────────────────────────────
+
+export async function getTrendingSeries(page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>("/trending/tv/week", `page=${page}`);
+  return data.results;
+}
+
+export async function getPopularSeries(page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>("/tv/popular", `page=${page}`);
+  return data.results;
+}
+
+export async function getTopRatedSeries(page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>("/tv/top_rated", `page=${page}`);
+  return data.results;
+}
+
+export async function getOnTheAirSeries(page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>("/tv/on_the_air", `page=${page}`);
+  return data.results;
+}
+
+export async function getSeriesByGenre(genreId: number, page = 1): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>(
+    "/discover/tv",
+    `with_genres=${genreId}&sort_by=popularity.desc&page=${page}`
+  );
+  return data.results;
+}
+
+export async function getSeriesAcrossPages(
+  fetcher: (page: number) => Promise<TmdbSeries[]>,
+  pages = 2
+): Promise<TmdbSeries[]> {
+  const results = await Promise.all(
+    Array.from({ length: pages }, (_, i) => fetcher(i + 1))
+  );
+  return results.flat();
+}
+
+export async function getSeriesDetails(id: string): Promise<TmdbSeries> {
+  return tmdbFetch<TmdbSeries>(`/tv/${id}`);
+}
+
+export async function getSeasonDetails(seriesId: string, season: number): Promise<TmdbSeasonDetails> {
+  return tmdbFetch<TmdbSeasonDetails>(`/tv/${seriesId}/season/${season}`);
+}
+
+export async function getRecommendedSeries(id: string): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>(`/tv/${id}/recommendations`);
+  return data.results;
+}
+
+export async function getSimilarSeries(id: string): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>(`/tv/${id}/similar`);
+  return data.results;
+}
+
+export async function searchSeries(query: string): Promise<TmdbSeries[]> {
+  const data = await tmdbFetch<TmdbSeriesListResponse>(
+    "/search/tv",
+    `query=${encodeURIComponent(query)}`
+  );
   return data.results;
 }

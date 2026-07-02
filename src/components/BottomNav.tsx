@@ -14,13 +14,12 @@ function HomeIcon({ active }: { active: boolean }) {
   );
 }
 
-function GridIcon({ active }: { active: boolean }) {
+function SeriesIcon({ active }: { active: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
-      <rect x="13.5" y="3.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
-      <rect x="3.5" y="13.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
-      <rect x="13.5" y="13.5" width="7" height="7" rx="1" fill={active ? "#fff" : "none"} />
+      <rect x="2" y="4" width="20" height="14" rx="2" fill={active ? "currentColor" : "none"} fillOpacity={active ? 0.15 : 0} />
+      <path d="M8 20h8M12 18v2" strokeLinecap="round" />
+      <path d="M10 10.5 14.5 12 10 13.5z" fill={active ? "#fff" : "currentColor"} stroke="none" />
     </svg>
   );
 }
@@ -75,7 +74,7 @@ function PlayIcon() {
 export default function BottomNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const isBrowse = pathname.startsWith("/browse");
+  const isSeries = pathname.startsWith("/series");
   const isGenres = pathname.startsWith("/genres");
   const isSearch = pathname.startsWith("/search");
   const isWatchlist = pathname.startsWith("/watchlist");
@@ -88,10 +87,10 @@ export default function BottomNav() {
       icon: <HomeIcon active={isHome} />,
     },
     {
-      href: "/browse/all",
-      label: "Browse",
-      active: isBrowse,
-      icon: <GridIcon active={isBrowse} />,
+      href: "/series",
+      label: "Series",
+      active: isSeries,
+      icon: <SeriesIcon active={isSeries} />,
     },
     {
       href: "/genres",
