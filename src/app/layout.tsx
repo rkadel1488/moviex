@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import BottomNav from "@/components/BottomNav";
+import { TopChrome, BottomChrome } from "@/components/SiteChrome";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
@@ -62,12 +60,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <script src="https://paviliongiddy.com/55/04/5b/55045bd6838e356218f6ad07be747006.js" async />
-        <Navbar />
+        <TopChrome />
         <main className="flex-1 pb-14 sm:pb-0">{children}</main>
-        <div className="hidden sm:block">
-          <Footer />
-        </div>
-        <BottomNav />
+        <BottomChrome />
       </body>
     </html>
   );
