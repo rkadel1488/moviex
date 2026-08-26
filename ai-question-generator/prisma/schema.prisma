@@ -1,0 +1,341 @@
+// AI Question Generator — data model
+//
+// Ships against SQLite by default so the app runs with zero external
+// infrastructure. Every field that would be a native array/enum/vector on
+// PostgreSQL (the recommended production target — see ARCHITECTURE.md) is
+// modeled as String/Json here instead, so switching `provider` below to
+// "postgresql" and re-running `prisma migrate dev` is the only step needed
+// to move to the production database — no field-level changes required.
+// Embeddings are stored as JSON float arrays; on Postgres this column can be
+// swapped for a native `vector` column (pgvector) behind the same
+// `DocumentChunk.embedding` accessor in src/lib/rag/retrieve.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & organizations
+// ---------------------------------------------------------------------------
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users            User[]
+  documents        Document[]
+  questions        Question[]
+  questionBanks    QuestionBank[]
+  questionPapers   QuestionPaper[]
+  subjects         Subject[]
+  grades           Grade[]
+  templates        Template[]
+}
+
+model User {
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  passwordHash   String
+  role           String   @default("TEACHER") // ADMIN | SCHOOL_ADMIN | TEACHER | STUDENT | CONTENT_CREATOR | EXAM_COORDINATOR
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime @default(now())
+
+  documents        Document[]
+  generationJobs   GenerationJob[]
+  questions        Question[]
+  questionBanks    QuestionBank[]
+  questionPapers   QuestionPaper[]
+  templates        Template[]
+}
+
+// ---------------------------------------------------------------------------
+// Curriculum taxonomy (kept lightweight & free-text friendly — no curriculum
+// is hard-coded; users can type any subject/grade/board and one gets created)
+// ---------------------------------------------------------------------------
+
+model Subject {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  createdAt      DateTime @default(now())
+
+  chapters  Chapter[]
+  questions Question[]
+
+  @@unique([organizationId, name])
+}
+
+model Grade {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  createdAt      DateTime @default(now())
+
+  questions Question[]
+
+  @@unique([organizationId, name])
+}
+
+model Chapter {
+  id        String   @id @default(cuid())
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+
+  topics    Topic[]
+  questions Question[]
+}
+
+model Topic {
+  id        String   @id @default(cuid())
+  chapterId String
+  chapter   Chapter  @relation(fields: [chapterId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+
+  questions Question[]
+}
+
+model LearningOutcome {
+  id          String   @id @default(cuid())
+  code        String // e.g. "LO1"
+  description String
+  createdAt   DateTime @default(now())
+
+  questions Question[]
+}
+
+// ---------------------------------------------------------------------------
+// Source documents (RAG pipeline input)
+// ---------------------------------------------------------------------------
+
+model Document {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  title            String
+  sourceType       String // TEXT | PDF | DOCX | PPTX | IMAGE | TOPIC
+  originalFilename String?
+  rawText          String   @default("")
+  pageCount        Int?
+  status           String   @default("READY") // PROCESSING | READY | FAILED
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+
+  chunks         DocumentChunk[]
+  generationJobs GenerationJob[]
+  questions      Question[]
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  index      Int
+  heading    String?
+  section    String?
+  page       Int?
+  content    String
+  // JSON float array embedding (see note at top of file re: pgvector).
+  embedding  Json?
+  createdAt  DateTime @default(now())
+
+  @@index([documentId])
+}
+
+// ---------------------------------------------------------------------------
+// Generation
+// ---------------------------------------------------------------------------
+
+model GenerationJob {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+  // Full GenerationConfig JSON (see src/lib/types.ts)
+  config     Json
+  status     String   @default("PENDING") // PENDING | RUNNING | SUCCEEDED | FAILED
+  errorMessage String?
+  questionCount Int    @default(0)
+  inputTokens   Int?
+  outputTokens  Int?
+  createdAt  DateTime @default(now())
+  completedAt DateTime?
+
+  questions Question[]
+}
+
+model Question {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  documentId       String?
+  document         Document? @relation(fields: [documentId], references: [id])
+  generationJobId  String?
+  generationJob    GenerationJob? @relation(fields: [generationJobId], references: [id])
+
+  type             String   // see src/lib/constants.ts QUESTION_TYPES
+  subjectId        String?
+  subject          Subject? @relation(fields: [subjectId], references: [id])
+  gradeId          String?
+  grade            Grade?   @relation(fields: [gradeId], references: [id])
+  chapterId        String?
+  chapter          Chapter? @relation(fields: [chapterId], references: [id])
+  topicId          String?
+  topic            Topic?   @relation(fields: [topicId], references: [id])
+  learningOutcomeId String?
+  learningOutcome  LearningOutcome? @relation(fields: [learningOutcomeId], references: [id])
+
+  bloomLevel       String?  // REMEMBER | UNDERSTAND | APPLY | ANALYZE | EVALUATE | CREATE
+  difficulty       String?  // VERY_EASY | EASY | MODERATE | DIFFICULT | VERY_DIFFICULT
+  marks            Float    @default(1)
+
+  // For case-based questions this holds the generated case/passage/scenario;
+  // sub-questions reference it via caseGroupId.
+  caseGroupId      String?
+  caseContext      String?
+
+  questionText     String
+  answerText       String?
+  explanation      String?
+  markingScheme    Json?    // array of {criterion, marks}
+  rubric           Json?    // {criteria: [{name, levels: [{score,label,description}]}]}
+  wordBank         Json?    // string[] for fill-in-the-blank
+
+  sourceOnly       Boolean  @default(true)
+  sourceRef        Json?    // {page, paragraph, section, chunkId}
+  qualityScore     Float?
+  qualityIssues    Json?    // string[] of validation warnings
+
+  tags             Json     @default("[]")
+  isFavorite       Boolean  @default(false)
+  language         String   @default("en")
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  options          QuestionOption[]
+  bankItems        QuestionBankItem[]
+  paperItems       QuestionPaperSectionItem[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([type])
+  @@index([caseGroupId])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label      String // "A" | "B" | ... or left-column key for match-the-following
+  text       String
+  matchText  String? // right-column value, only for MATCH_FOLLOWING pairs
+  isCorrect  Boolean  @default(false)
+  order      Int      @default(0)
+
+  @@index([questionId])
+}
+
+// ---------------------------------------------------------------------------
+// Question banks
+// ---------------------------------------------------------------------------
+
+model QuestionBank {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  description    String?
+  createdAt      DateTime @default(now())
+
+  items QuestionBankItem[]
+}
+
+model QuestionBankItem {
+  id             String   @id @default(cuid())
+  questionBankId String
+  questionBank   QuestionBank @relation(fields: [questionBankId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  addedAt        DateTime @default(now())
+
+  @@unique([questionBankId, questionId])
+}
+
+// ---------------------------------------------------------------------------
+// Question papers
+// ---------------------------------------------------------------------------
+
+model QuestionPaper {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  title          String
+  templateStyle  String   @default("SCHOOL_EXAM") // see src/lib/constants.ts PAPER_TEMPLATES
+  meta           Json     // {schoolName, examName, session, subject, grade, date, time, fullMarks, passMarks, instructions[]}
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sections QuestionPaperSection[]
+}
+
+model QuestionPaperSection {
+  id              String   @id @default(cuid())
+  questionPaperId String
+  questionPaper   QuestionPaper @relation(fields: [questionPaperId], references: [id], onDelete: Cascade)
+  title           String // "SECTION A"
+  instructions    String?
+  order           Int      @default(0)
+
+  items QuestionPaperSectionItem[]
+}
+
+model QuestionPaperSectionItem {
+  id            String   @id @default(cuid())
+  sectionId     String
+  section       QuestionPaperSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question @relation(fields: [questionId], references: [id])
+  order         Int      @default(0)
+  marksOverride Float?
+  isOptional    Boolean  @default(false) // internal choice / OR question
+
+  @@index([sectionId])
+}
+
+// ---------------------------------------------------------------------------
+// Templates (paper formatting presets, reusable generation configs)
+// ---------------------------------------------------------------------------
+
+model Template {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  name           String
+  type           String // GENERATION_CONFIG | PAPER_FORMAT
+  config         Json
+  createdAt      DateTime @default(now())
+}
